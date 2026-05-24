@@ -1,0 +1,115 @@
+# GPT-SoVITS 训练配置文件 - GPT模型
+# 达妮娅语音数据集
+
+# 基础配置
+project_name: "daniya_gptsovits"
+output_dir: "./output/gpt_daniya"
+log_dir: "./logs"
+
+# 数据配置
+data:
+  dataset_path: "/path/to/your/dataset"  # 修改为实际路径
+  audio_dir: "raw_audio"
+  transcript_file: "transcript.txt"
+  list_file: "daniya.list"
+  sampling_rate: 48000  # 保持原始采样率
+  max_audio_length: 20  # 最大音频长度（秒）
+  min_audio_length: 1   # 最小音频长度（秒）
+
+# 模型配置
+model:
+  type: "gpt"
+  hidden_size: 768
+  num_layers: 12
+  num_heads: 12
+  intermediate_size: 3072
+  dropout: 0.1
+
+# 训练配置
+training:
+  # 批次大小
+  batch_size: 8
+  
+  # 学习率
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1e-8
+  
+  # 学习率调度
+  lr_scheduler_type: "cosine"
+  warmup_steps: 100
+  warmup_ratio: 0.1
+  
+  # 训练轮数
+  epochs: 100
+  
+  # 梯度累积
+  gradient_accumulation_steps: 4
+  
+  # 梯度裁剪
+  max_grad_norm: 1.0
+  
+  # 混合精度训练
+  fp16: true
+  fp16_opt_level: "O1"
+  
+  # 保存配置 - 设置为每1000步保存
+  save_steps: 1000
+  save_total_limit: 50  # 最多保留50个checkpoint
+  
+  # 日志配置
+  logging_steps: 10
+  logging_first_step: true
+  
+  # 评估配置
+  eval_steps: 100
+  evaluation_strategy: "steps"
+  
+  # 设备配置
+  no_cuda: false
+  seed: 42
+  
+  # 其他配置
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  remove_unused_columns: true
+  
+  # 恢复训练
+  resume_from_checkpoint: null  # 设置checkpoint路径来恢复训练
+  
+# 环境配置
+environment:
+  use_wandb: false
+  wandb_project: "daniya_gptsovits"
+  wandb_run_name: "gpt_training"
+  
+# 高级配置
+advanced:
+  gradient_checkpointing: true
+  optim: "adamw_torch"
+  report_to: "tensorboard"
+  prediction_loss_only: true
+  
+# 数据增强配置
+data_augmentation:
+  enabled: true
+  techniques:
+    - name: "volume_normalization"
+      params:
+        target_level: -20.0  # dBFS
+    - name: "noise_injection"
+      params:
+        noise_level: 0.005
+        probability: 0.3
+    - name: "speed_perturbation"
+      params:
+        min_speed: 0.9
+        max_speed: 1.1
+        probability: 0.2
+    - name: "pitch_shift"
+      params:
+        min_shift: -2
+        max_shift: 2
+        probability: 0.2
